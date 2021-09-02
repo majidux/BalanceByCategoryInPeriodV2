@@ -1,3 +1,57 @@
+class BalanceCalculator {
+  constructor(transactions, categories, start, end) {
+    this.transactions = transactions;
+    this.categories = categories;
+    this.start = start;
+    this.end = end;
+  }
+
+  handleFilterByTime = () => {
+    return this.transactions.filter((item) => {
+      const date = new Date(item.time);
+      return date >= this.start && date <= this.end;
+    });
+  };
+
+  handleConvertArrayToObject = ({ arr = [] }) => {
+    return Object.assign({}, ...arr.map((object) => object));
+  };
+
+  handleFilterArrayBasedOnAnotherArray = ({ key, calculator }) =>
+    this.handleFilterByTime().filter((i) => i[calculator] === key);
+
+  handleFilterArrayByKey = ({ mainArr = [], key, calculator }) => {
+    return {
+      [key]: mainArr
+        .map((mainItem) => mainItem[calculator])
+        .reduce((accumulator, currentValue) => accumulator + currentValue, 0),
+    };
+  };
+
+  handleIterate = ({ calculator }) => {
+    return this.handleConvertArrayToObject({
+      arr: this.categories.map((item) =>
+        this.handleFilterArrayByKey({
+          mainArr: this.handleFilterArrayBasedOnAnotherArray({
+            key: item,
+            calculator: "category",
+          }),
+          calculator: calculator,
+          key: item,
+        })
+      ),
+    });
+  };
+
+  getBalanceByCategoryInPeriod = () => {
+    return this.handleIterate({
+      calculator: "amount",
+    });
+  };
+}
+
+const start = new Date("2021-04-05");
+const end = new Date("2021-04-09");
 const transactions = [
   {
     id: "11ff73b5-e771-441c-886a-498d93b5093d",
@@ -37,70 +91,13 @@ const transactions = [
   },
 ];
 
-const start = new Date("2021-04-05");
-const end = new Date("2021-04-07");
-
-const handleFilterByTime = ({ mainArr = [], start, end }) => {
-  return mainArr.filter((item) => {
-    const date = new Date(item.time);
-    return date >= start && date <= end;
-  });
-};
-
-console.log(handleFilterByTime({ mainArr: transactions, start, end }));
-
-const handleConvertArrayToObject = ({ arr = [] }) => {
-  return Object.assign({}, ...arr.map((object) => object));
-};
-
-const handleFilterArrayBasedOnAnotherArray = ({
-  mainArr = [],
-  key,
-  calculator,
-}) => mainArr.filter((i) => i[calculator] === key);
-
-const handleFilterArrayByKey = ({ mainArr = [], key, calculator }) => {
-  return {
-    [key]: mainArr
-      .map((mainItem) => mainItem[calculator])
-      .reduce((accumulator, currentValue) => accumulator + currentValue, 0),
-  };
-};
-
-const handleIterate = ({ mainArr = [], secondArr, calculator }) => {
-  return handleConvertArrayToObject({
-    arr: mainArr.map((item) =>
-      handleFilterArrayByKey({
-        mainArr: handleFilterArrayBasedOnAnotherArray({
-          mainArr: secondArr,
-          key: item,
-          calculator: "category",
-        }),
-        calculator: calculator,
-        key: item,
-      })
-    ),
-  });
-};
-
-const getBalanceByCategoryInPeriod = (
-  transactions = [],
-  categories = [],
-  start,
-  end
-) => {
-  return handleIterate({
-    calculator: "amount",
-    mainArr: categories,
-    secondArr: handleFilterByTime({ mainArr: transactions, start, end }),
-  });
-};
-
-const res = getBalanceByCategoryInPeriod(
+const obj = new BalanceCalculator(
   transactions,
   ["sports", "entertainment"],
   start,
   end
 );
+
+const res = obj.getBalanceByCategoryInPeriod();
 
 console.log(res);
