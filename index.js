@@ -9,7 +9,13 @@ class BalanceCalculator {
   handleFilterByTime = () => {
     return this.transactions.filter((item) => {
       const date = new Date(item.time);
-      return date >= this.start && date <= this.end;
+      start.setUTCHours(0, 0, 0);
+      date.setUTCHours(0, 0, 0);
+      end.setUTCHours(23, 59, 59);
+      return (
+        date.getUTCDate() >= start.getUTCDate() &&
+        date.getUTCDate() <= end.getUTCDate()
+      );
     });
   };
 
