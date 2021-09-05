@@ -23,7 +23,7 @@ class BalanceCalculator {
     return Object.assign({}, ...arr.map((object) => object));
   };
 
-  handleFilterArrayBasedOnAnotherArray = ({ key, calculator }) =>
+  handleFilterArrayBasedOnKey = ({ key, calculator }) =>
     this.handleFilterByTime().filter((i) => i[calculator] === key);
 
   handleFilterArrayByKey = ({ mainArr = [], key, calculator }) => {
@@ -38,7 +38,7 @@ class BalanceCalculator {
     return this.handleConvertArrayToObject({
       arr: this.categories.map((item) =>
         this.handleFilterArrayByKey({
-          mainArr: this.handleFilterArrayBasedOnAnotherArray({
+          mainArr: this.handleFilterArrayBasedOnKey({
             key: item,
             calculator: "category",
           }),
